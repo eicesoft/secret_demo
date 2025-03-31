@@ -1,0 +1,24 @@
+server:
+  port: 8761
+
+spring:
+  cloud:
+    config:
+      enabled: false
+
+eureka:
+  instance:
+    hostname: eureka-center
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+  server:
+    enableSelfPreservation: false
+    evictionIntervalTimerInMs: 4000
+
+logging:
+  level:
+    org.springframework.cloud.netflix.eureka: DEBUG
+    com.netflix.eureka: DEBUG

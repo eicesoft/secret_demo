@@ -1,0 +1,80 @@
+spring:
+  application:
+    name: dh-test
+  cloud:
+    config:
+      enabled: false  # 如果不使用配置中心则设为false
+    discovery:
+      enabled: true
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  profiles:
+    active: dev
+  pid:
+    fail-on-write-error: true
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+logging:
+  config: classpath:logs/logback-spring.xml
+  file:
+    path: ../logs/${spring.application.name}
+  level:
+
+    liquibase: debug
+    io:
+      undertow: error
+    org:
+      secreetdemo: debug
+      apache:
+        ibatis:
+          session: warn
+      jboss: warn
+      xnio: warn
+      springframework:
+        web: warn
+        data:
+          repository:
+            config: warn
+    io.lettuce: error
+
+server:
+  port: 9002
+  undertow:
+    threads:
+      worker: 128
+      io: 8
+    buffer-size: 1024
+    direct-buffers: true
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*Mapper.xml
+  global-config:
+    banner: false
+    db-config:
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+
+sa-token:
+  token-name: dh-token
+  timeout: 86400
+  active-timeout: -1
+  is-concurrent: true
+  is-share: false
+  token-style: uuid
+  is-log: false
+  is-read-cookie: false
+  is-print: false

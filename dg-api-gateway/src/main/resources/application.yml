@@ -1,0 +1,63 @@
+server:
+  port: 8080 # 网关本身监听的端口
+
+management:
+  endpoints:
+    web:
+      exposure:
+
+        include: health, info, metrics
+
+spring:
+  main:
+    web-application-type: reactive
+  cache:
+    caffeine:
+      spec: maximumSize=2000,expireAfterWrite=60s
+  application:
+    name: dh-api-gateway
+  cloud:
+    config:
+      enabled: false
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true # 将服务名转为小写作为路径前缀
+
+      routes:
+        - id: auth_service_route
+          uri: lb://DH-AUTH
+          predicates:
+            - Path=/api/auth/**
+          filters: # 过滤器，在请求转发前后进行处理
+            # (可选) 移除路径前缀。例如请求 /api/users/1，转发给 user-service 时变成 /users/1
+            - StripPrefix=1
+            - AddRequestHeader=X-Request-Source, api-gateway
+
+        - id: test_service_route
+          uri: lb://DH-TEST
+          predicates:
+            - Path=/api/test/**
+          filters:
+            - StripPrefix=1
+
+logging:
+  level:
+    com:
+      netflix:
+        discovery: warn
+    org:
+      xnio: warn
+      springframework:
+        cloud:
+          gateway:
+            route: warn
+            handler: debug
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}

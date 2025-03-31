@@ -1,0 +1,44 @@
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://rm-uf6634z2an4en9l27xo.mysql.rds.aliyuncs.com:3306/platform-dev?useUnicode=true&characterEncoding=UTF8&useSSL=false&serverTimezone=GMT%2B8
+    username: dev01
+    password: 4RItQehN
+    hikari:
+      pool-name: ${spring.application.name}
+      minimum-idle: 1
+      idle-timeout: 600000
+      maximum-pool-size: 5
+      max-lifetime: 1800000
+      auto-commit: true
+      connection-timeout: 30000
+      validation-timeout: 5000
+      connection-test-query: SELECT 1
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 500
+        prepStmtCacheSqlLimit: 2048
+        useLocalSessionState: true
+        rewriteBatchedStatements: true
+        cacheResultSetMetadata: true
+        cacheServerConfiguration: true
+        elideSetAutoCommits: true
+        maintainTimeStats: false
+
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+    timeout: 5000
+    password: LGD
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 1
+        max-wait: 5000
+        time-between-eviction-runs: 30000
+        min-evictable-idle-time: 1800000
+        test-on-borrow: true
+        test-on-return: true

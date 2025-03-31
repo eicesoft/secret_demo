@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <contextName>logback</contextName>
+    <property name="MAX_FILE_SIZE" value="20MB" />
+    <property name="MAX_HISTORY" value="30" />
+    <!-- 日志目录取值spring日志配置属性logging.file.path，未设置默认使用应用所在位置log目录 -->
+    <springProperty name="LOG_PATH" source="logging.file.path" defaultValue="../logs/ship"/>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+    <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+    <!-- 日志打印到控制台 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <!-- 通用日志配置Appender -->
+    <appender name="shipAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/app.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/ship.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] %-5level %file:%line - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <!-- 调度任务日志Appender  -->
+    <appender name="schedulerAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/scheduler.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/scheduler.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%thread] %-5level %file:%line - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 根据spring.profiles.active 配置项的值加载不同模块，不设置默认为 default -->
+    <springProfile name="dev">
+        <logger name="com.dh.nodefect.ship.task" level="debug" additivity="false">
+            <appender-ref ref="schedulerAppender"/>
+        </logger>
+        <logger name="com.dh.nodefect.ship" level="debug" additivity="false">
+            <appender-ref ref="shipAppender"/>
+            <appender-ref ref="STDOUT" />
+        </logger>
+    </springProfile>
+    <springProfile name="qa">
+        <logger name="com.dh.nodefect.ship.task" level="debug" additivity="false">
+            <appender-ref ref="schedulerAppender"/>
+        </logger>
+        <logger name="com.dh.nodefect.ship" level="debug" additivity="false">
+            <appender-ref ref="shipAppender"/>
+            <appender-ref ref="STDOUT" />
+        </logger>
+    </springProfile>
+    <springProfile name="prod">
+        <logger name="com.dh.nodefect.ship.task" level="info" additivity="false">
+            <appender-ref ref="schedulerAppender"/>
+        </logger>
+        <logger name="com.dh.nodefect.ship" level="info" additivity="false">
+            <appender-ref ref="shipAppender"/>
+            <appender-ref ref="STDOUT" />
+        </logger>
+    </springProfile>
+
+    <!-- 跟日志配置 -->
+    <root level="info">
+        <appender-ref ref="shipAppender" />
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>
